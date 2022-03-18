@@ -1,8 +1,4 @@
 const { Router } = require("express");
-const bcrypt = require("bcrypt");
-
-const { User } = require("../models/index");
-const searchCategory = require("./controls");
 
 const router = Router();
 
