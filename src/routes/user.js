@@ -8,7 +8,7 @@ const router = Router();
 
 router.post("/register", async (req, res) => {
   const salt = await bcrypt.genSalt(10);
-  console.log(req.body);
+
   try {
     const newUser = await User.create({
       dateOfBirth: req.body.dateOfBirth,

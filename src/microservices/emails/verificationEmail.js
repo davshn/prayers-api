@@ -6,7 +6,7 @@ module.exports = function verification(mail) {
     to: mail, // list of receivers
     subject: "Verifica tu cuenta",
     text: "Verifica tu cuenta",
-    html: `<br> Haz click aqui para verificar tu cuenta<br/> <a href="https://find-spot.herokuapp.com/verify?id=${newUser.name}&mail=${newUser.email}" >Verificar</a>`,
+    html: `<br> Haz click aqui para verificar tu cuenta<br/> <a href="https://find-spot.herokuapp.com/verify?id=${mail}&mail=${mail}" >Verificar</a>`,
   };
 
   transporter.sendMail(mailData, function (err, info) {
