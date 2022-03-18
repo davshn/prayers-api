@@ -5,7 +5,7 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
-const { DB_URI, } = process.env;
+const { DATABASE_URL, } = process.env;
 const basename = path.basename(__filename);
 const modelDefiners = [];
 
@@ -18,7 +18,7 @@ const config = {
     }
 };
 
-const sequelize = new Sequelize(DB_URI, config);
+const sequelize = new Sequelize(DATABASE_URL, config);
 
 // Reading all models from files
 fs.readdirSync(path.join(__dirname, './'))

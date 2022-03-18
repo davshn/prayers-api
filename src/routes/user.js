@@ -12,7 +12,6 @@ router.post("/register", async (req, res) => {
       dateOfBirth: req.body.dateOfBirth,
       name: req.body.name,
       lastname: req.body.lastname,
-      profilePic: req.body.profilePic,
       email: req.body.email.toLowerCase(),
       password: await bcrypt.hash(req.body.password, salt),
     })
