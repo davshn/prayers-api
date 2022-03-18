@@ -7,6 +7,6 @@ const { PORT } = process.env;
 
 conection.sync({ force: true }).then(() => {
   server.listen(PORT, () => {                       //Run server in PORT
-    console.log('%s listening at '+PORT);
+      console.log('%s listening at ' + PORT);
   });
 });
