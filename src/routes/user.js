@@ -1,6 +1,6 @@
 const { Router } = require("express");
 
-const transporter = require("../services/nodeMailer");
+const transporter = require("../services/nodemailer");
 const { User } = require("../models/index");
 
 const router = Router();
