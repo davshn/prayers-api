@@ -16,7 +16,6 @@ const config = {
 
 const sequelize = new Sequelize(DB_URI, config);
 
-
 // Reading all models from files
 fs.readdirSync(path.join(__dirname, './'))
   .filter((file) => (file.indexOf('.') !== 0) && (file !== basename) && (file.slice(-3) === '.js'))
@@ -49,6 +48,6 @@ Prayer.hasMany(Comment);
 Comment.belongsTo(Prayer);
 
 module.exports = {
-  ...sequelize.models, // para poder importar los modelos así: const { Product, User } = require('./db.js');
-  conection: sequelize,     // para importart la conexión { conn } = require('./db.js');
+  ...sequelize.models, 
+  conection: sequelize,    
 };
