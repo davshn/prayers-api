@@ -1,11 +1,11 @@
-const { DataTypes,Model } = require("sequelize");
+const { DataTypes, Model } = require("sequelize");
 
 module.exports = (sequelize) => {
-    // Table model defined
-    class Prayers extends Model { }
+  // Table model defined
+  class Prayers extends Model {}
 
-    Prayers.init(   
-        {
+  Prayers.init(
+    {
       id: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
@@ -15,21 +15,21 @@ module.exports = (sequelize) => {
       title: {
         type: DataTypes.STRING,
         allowNull: false,
-            },
+      },
       text: {
         type: DataTypes.TEXT,
         allowNull: false,
-        },
+      },
       support: {
         type: DataTypes.INTEGER,
         defaultValue: 0,
-        },
+      },
     },
     {
-        sequelize,
-        modelName: "prayer",
-        tableName: "prayers",
-        timestamps: true,
+      sequelize,
+      modelName: "prayer",
+      tableName: "prayers",
+      timestamps: true,
     }
   );
 };

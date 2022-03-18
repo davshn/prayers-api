@@ -1,11 +1,11 @@
-const { DataTypes,Model } = require("sequelize");
+const { DataTypes, Model } = require("sequelize");
 
 module.exports = (sequelize) => {
-    // Table model defined
-    class Comments extends Model { }
+  // Table model defined
+  class Comments extends Model {}
 
-    Comments.init(   
-        {
+  Comments.init(
+    {
       id: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
@@ -18,10 +18,10 @@ module.exports = (sequelize) => {
       },
     },
     {
-        sequelize,
-        modelName: "comment",
-        tableName: "comments",
-        timestamps: true,
+      sequelize,
+      modelName: "comment",
+      tableName: "comments",
+      timestamps: true,
     }
   );
 };

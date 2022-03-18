@@ -1,11 +1,11 @@
-const { DataTypes,Model } = require("sequelize");
+const { DataTypes, Model } = require("sequelize");
 
 module.exports = (sequelize) => {
-    // Table model defined
-    class Categories extends Model { }
+  // Table model defined
+  class Categories extends Model {}
 
-    Categories.init(   
-        {
+  Categories.init(
+    {
       id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
@@ -18,10 +18,10 @@ module.exports = (sequelize) => {
       },
     },
     {
-        sequelize,
-        modelName: "category",
-        tableName: "categories",
-        timestamps: false,
+      sequelize,
+      modelName: "category",
+      tableName: "categories",
+      timestamps: false,
     }
   );
 };
