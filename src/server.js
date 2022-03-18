@@ -1,7 +1,7 @@
 const express = require('express');
 const dotenv = require('dotenv');
 
-//const routes = require('./routes/index.js');
+const routes = require('./routes/index.js');
 
 dotenv.config();
 
@@ -19,7 +19,7 @@ server.use((req, res, next) => {
   next();
 });
 
-//server.use('/', routes);
+server.use('/', routes);
 
 // Error catching endware.
 server.use((err, req, res, next) => { 
