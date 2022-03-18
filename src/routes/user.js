@@ -1,8 +1,8 @@
 const { Router } = require("express");
 const bcrypt = require("bcrypt");
 
-const transporter = require("../services/nodemailer");
 const { User } = require("../models/index");
+const verification = require("../microservices/emails/verificationEmail");
 
 const router = Router();
 
@@ -17,21 +17,8 @@ router.post("/register", async (req, res) => {
       password: await bcrypt.hash(req.body.password, salt),
     })
     
-    const mailData = {
-      from: 'find.spot.ar.co@gmail.com',  // sender address
-      to: newUser.email,   // list of receivers
-      subject: 'Verifica tu cuenta',
-      text: 'Verifica tu cuenta',
-      html: `<br> Haz click aqui para verificar tu cuenta<br/> <a href="https://find-spot.herokuapp.com/verify?id=${newUser.name}&mail=${newUser.email}" >Verificar</a>`,
-    };
-
-    transporter.sendMail(mailData, function (err, info) {
-      if(err)
-        console.log("Email error")
-      else
-        console.log("Email send");
-      });
-
+    verification(newUser.mail);
+    
     res.status(200).send("User created!");
   }
   catch (error) {
