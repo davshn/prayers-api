@@ -18,7 +18,7 @@ router.post("/register", async (req, res) => {
       password: await bcrypt.hash(req.body.password, salt),
     });
 
-    verification(req.body.email);
+    verification(newUser.email);
 
     res.status(200).send("User created!");
   } catch (error) {
