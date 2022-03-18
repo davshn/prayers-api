@@ -1,9 +1,9 @@
 const express = require('express');
-const dotenv = require('dotenv');
 
 const routes = require('./routes/index.js');
+require("./models/index");
 
-dotenv.config();
+
 
 const server = express();
 

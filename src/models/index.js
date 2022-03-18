@@ -1,10 +1,14 @@
 const { Sequelize } = require('sequelize');
 const fs = require('fs');
 const path = require('path');
+const dotenv = require('dotenv');
+
+dotenv.config();
 
 const { DB_URI, } = process.env;
 const basename = path.basename(__filename);
 const modelDefiners = [];
+
 const config = {
     dialectOptions: {
         ssl: {

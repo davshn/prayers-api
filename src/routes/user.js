@@ -1,20 +1,22 @@
 const { Router } = require("express");
 
+const transporter = require("../services/nodeMailer");
+const { User } = require("../models/index");
+
 const router = Router();
 
 router.post("/register", async (req, res) => {
   const salt = await bcrypt.genSalt(10);
   try{
-    const categories= await searchCategory(req.body.interests);
-    const newUser= await User.create({
+    await User.create({
       dateOfBirth: req.body.dateOfBirth,
       name: req.body.name,
+      lastname: req.body.lastname,
       profilePic: req.body.profilePic,
       email: req.body.email.toLowerCase(),
       password: await bcrypt.hash(req.body.password, salt),
     })
-    newUser.addCategory(categories);
-    
+  /*  
     const mailData = {
       from: 'find.spot.ar.co@gmail.com',  // sender address
       to: newUser.email,   // list of receivers
@@ -29,7 +31,7 @@ router.post("/register", async (req, res) => {
       else
         console.log("Email send");
       });
-
+*/
     res.status(200).send("User created!");
   } catch (error) {
     res.status(400).send("Error in creation");
