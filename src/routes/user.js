@@ -16,7 +16,7 @@ router.post("/register", async (req, res) => {
       email: req.body.email.toLowerCase(),
       password: await bcrypt.hash(req.body.password, salt),
     })
-    /*
+    
     const mailData = {
       from: 'find.spot.ar.co@gmail.com',  // sender address
       to: newUser.email,   // list of receivers
@@ -31,7 +31,7 @@ router.post("/register", async (req, res) => {
       else
         console.log("Email send");
       });
-*/
+
     res.status(200).send("User created!");
   }
   catch (error) {
