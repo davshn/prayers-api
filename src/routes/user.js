@@ -1,4 +1,5 @@
 const { Router } = require("express");
+const bcrypt = require("bcrypt");
 
 const transporter = require("../services/nodemailer");
 const { User } = require("../models/index");
