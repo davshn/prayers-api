@@ -10,7 +10,7 @@ module.exports = function verification(mail) {
   };
 
   transporter.sendMail(mailData, function (err, info) {
-    if (err) console.log("Email error");
-    else console.log("Email send");
+    if (err) console.log("Error al enviar el correo");
+    else console.log("Correo enviado con exito");
   });
 };
