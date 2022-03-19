@@ -2,11 +2,12 @@ const { Router } = require("express");
 const bcrypt = require("bcrypt");
 
 const { User } = require("../models/index");
+const { validateRegister } = require("../middlewares/validators/user");
 const verification = require("../microservices/emails/verificationEmail");
 
 const router = Router();
 
-router.post("/register", async (req, res) => {
+router.post("/register",validateRegister, async (req, res) => {
   const salt = await bcrypt.genSalt(10);
 
   try {
