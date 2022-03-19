@@ -17,6 +17,19 @@ const validateRegister = [
   },
 ];
 
+const validateLogin = [
+  check("email").exists().isEmail().withMessage("El email es requerido"),
+  check("password")
+    .exists()
+    .isString()
+    .isStrongPassword()
+    .withMessage("La contraseña es requerida"),
+  (req, res, next) => {
+    validateResults(req, res, next);
+  },
+];
+
 module.exports = {
   validateRegister: validateRegister,
+  validateLogin:validateLogin,
 };

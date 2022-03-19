@@ -11,3 +11,5 @@ conection.sync({ force: true }).then(() => {
     console.log("%s listening at " + PORT);
   });
 });
+//heroku logs --tail -a prayers-app
+//heroku pg:psql postgresql-graceful-23585 --app prayers-app

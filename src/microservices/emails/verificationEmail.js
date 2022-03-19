@@ -14,4 +14,3 @@ module.exports = function verification(mail) {
     else console.log("Correo enviado con exito");
   });
 };
-//heroku logs --tail -a prayers-app
