@@ -9,7 +9,6 @@ const {
   validateLogin,
 } = require("../middlewares/validators/user");
 
-
 const router = Router();
 const { TOKEN_KEY } = process.env;
 
@@ -33,14 +32,10 @@ router.post("/register", validateRegister, async (req, res) => {
   }
 });
 
-router.post("/login",validateLogin, async (req, res) => {
+router.post("/login", validateLogin, async (req, res) => {
   try {
     const email = req.body.email.toLowerCase();
     const password = req.body.password;
-
-    if (!(email && password)) {
-      res.status(400).send("All input is required");
-    }
 
     const user = await User.findOne({ where: { email } });
 
@@ -61,7 +56,7 @@ router.post("/login",validateLogin, async (req, res) => {
 
       res.status(200).json(loggedUser);
     } else {
-      res.status(402).send("El usuario no existe");
+      res.status(402).send("Usuario o contraseña incorrectos");
     }
   } catch (error) {
     res.status(405).send("Error en el login");
