@@ -31,5 +31,5 @@ const validateLogin = [
 
 module.exports = {
   validateRegister: validateRegister,
-  validateLogin:validateLogin,
+  validateLogin: validateLogin,
 };
