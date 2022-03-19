@@ -21,9 +21,9 @@ router.post("/register",validateRegister, async (req, res) => {
 
     verification(newUser.email);
 
-    res.status(200).send("User created!");
+    res.status(200).send("Usuario creado con exito");
   } catch (error) {
-    res.status(400).send("Error in creation " + error);
+    res.status(400).send("Error en la creacion de usuario " + error);
   }
 });
 

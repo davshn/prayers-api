@@ -6,5 +6,5 @@ module.exports.generalErrorHandler = function (err, req, res, next) {
 };
 
 module.exports.error404 = function (req, res, next) {
-  res.status(404).send("Endpoint does not exist");
+  res.status(404).send("La ruta no existe");
 };

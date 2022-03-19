@@ -8,7 +8,7 @@ const validateResults = (req, res, next) => {
     return next();
   } catch (err) {
     res.status(403);
-    res.send({ errors: err.array() });
+    res.send(err.array()[0].msg );
   }
 };
 
