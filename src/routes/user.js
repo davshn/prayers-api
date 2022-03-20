@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 
 const { User } = require("../models/index");
 const verification = require("../microservices/emails/verificationEmail");
+const authenticateProtection = require("../middlewares/authenticateProtection");
 const {
   validateRegister,
   validateLogin,
@@ -48,10 +49,6 @@ router.post("/login", validateLogin, async (req, res) => {
       const loggedUser = {
         token: user.token,
         id: user.id,
-        name: user.name,
-        lastname: user.lastname,
-        email: user.email,
-        isAutenticated: true,
       };
 
       res.status(200).json(loggedUser);
@@ -62,4 +59,27 @@ router.post("/login", validateLogin, async (req, res) => {
     res.status(405).send("Error en el login");
   }
 });
+
+router.get("/userinfo/:userId", authenticateProtection, async (req, res) => {
+  try {
+    const userId = req.params.userId;
+
+    const user = await User.findOne({ where: { id: userId } });
+
+    const userInfo = {
+      name: user.name,
+      lastname: user.lastname,
+      email: user.email,
+      isAutenticated: true,
+      createdPrays: user.createdPrays,
+      createdComments: user.createdComments,
+      prayersToCreate: user.prayersToCreate,
+    };
+
+    res.status(200).json(userInfo);
+  } catch (error) {
+    res.status(405).send("Error al obtener datos de usuario");
+  }
+});
+
 module.exports = router;
