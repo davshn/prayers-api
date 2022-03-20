@@ -1,9 +1,8 @@
 const jwt = require("jsonwebtoken");
 const { TOKEN_KEY } = process.env;
-const config = process.env;
 
 const authenticateProtection = (req, res, next) => {
-  const token = req.body.token;
+  const token = req.header("token");
 
   if (!token) {
     return res.status(403).send("Un token es requerido para la autenticacion");
