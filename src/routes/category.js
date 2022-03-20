@@ -8,7 +8,7 @@ const router = Router();
 
 router.get("/getall",authenticateProtection, async (req, res) => {
   try {
-    setCategories();
+    await setCategories();
     const allCategories = await Category.findAll();
     res.status(200).send(allCategories);
   } catch (error) {
