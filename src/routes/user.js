@@ -62,6 +62,7 @@ router.post("/login", validateLogin, async (req, res) => {
 
 router.get("/userinfo/:userId", authenticateProtection, async (req, res) => {
   try {
+    console.log(req.params);
     const userId = req.params.userId;
 
     const user = await User.findOne({ where: { id: userId } });
