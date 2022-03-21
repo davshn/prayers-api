@@ -20,7 +20,7 @@ module.exports = (sequelize) => {
         type: DataTypes.TEXT,
         allowNull: false,
       },
-      support: {
+      supporters: {
         type: DataTypes.INTEGER,
         defaultValue: 0,
       },

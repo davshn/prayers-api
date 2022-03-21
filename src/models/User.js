@@ -34,7 +34,7 @@ module.exports = (sequelize) => {
         allowNull: false,
         unique: true,
       },
-      createdPrays: {
+      createdPrayers: {
         type: DataTypes.INTEGER,
         defaultValue: 0,
       },

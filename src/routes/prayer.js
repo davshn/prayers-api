@@ -15,6 +15,8 @@ router.post(
       await Prayer.create({
         title: req.body.title,
         text: req.body.text,
+        userId: req.body.userId,
+        categoryId: req.body.categoryId,
       });
 
       res.status(200).send("Oracion creada con exito");

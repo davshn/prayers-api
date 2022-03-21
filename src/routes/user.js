@@ -71,7 +71,7 @@ router.get("/info/:userId", authenticateProtection, async (req, res) => {
       lastname: user.lastname,
       email: user.email,
       isAutenticated: true,
-      createdPrays: user.createdPrays,
+      createdPrayers: user.createdPrayers,
       createdComments: user.createdComments,
       prayersToCreate: user.prayersToCreate,
     };

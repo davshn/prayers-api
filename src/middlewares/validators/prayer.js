@@ -13,6 +13,16 @@ const validateCreation = [
     .isString()
     .isLength({ max: 200 })
     .withMessage("Contenido incorrecto"),
+  check("userId").exists().isString().withMessage("Id de usuario incorrecto"),
+  check("categoryId")
+    .exists()
+    .isInt()
+    .withMessage("Id de categoria incorrecto")
+    .custom((value) => {
+      return Category.findOne({ where: { id: value } }).then((category) => {
+        if (!category) return Promise.reject("Categoria no existe");
+      });
+    }),
   (req, res, next) => {
     validateResults(req, res, next);
   },
