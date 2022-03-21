@@ -45,6 +45,7 @@ const { Prayer, User, Category, Comment } = sequelize.models;
 // Relationships
 
 // Relations N:M
+
 User.hasMany(Prayer);
 Prayer.belongsTo(User);
 
@@ -56,6 +57,11 @@ Comment.belongsTo(User);
 
 Prayer.hasMany(Comment);
 Comment.belongsTo(Prayer);
+
+//Relations M:M
+
+Prayer.belongsToMany(User, { through: "supportedby" });
+User.belongsToMany(Prayer, { through: "supportedby" });
 
 module.exports = {
   ...sequelize.models,
