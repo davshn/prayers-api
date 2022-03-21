@@ -1,6 +1,6 @@
 const { Router } = require("express");
 
-const { Prayer } = require("../models/index");
+const { Prayer, Category } = require("../models/index");
 const authenticateProtection = require("../middlewares/authenticateProtection");
 const { validateCreation } = require("../middlewares/validators/prayer");
 
@@ -25,5 +25,20 @@ router.post(
     }
   }
 );
+
+router.get("/getown/:userId", authenticateProtection, async (req, res) => {
+  try {
+    const userId = req.params.userId;
+
+    const ownPrayers = await Prayer.findAll(
+      { where: { userId: userId } },
+      { include: Category }
+    );
+
+    res.status(200).send(ownPrayers);
+  } catch (error) {
+    res.status(400).send("Error en la creacion de oracion " + error);
+  }
+});
 
 module.exports = router;
