@@ -1,4 +1,5 @@
 const { Router } = require("express");
+const { Op } = require("sequelize");
 
 const { Prayer } = require("../models/index");
 const authenticateProtection = require("../middlewares/authenticateProtection");
@@ -31,8 +32,22 @@ router.get("/getown/:userId", authenticateProtection, async (req, res) => {
     const userId = req.params.userId;
 
     const ownPrayers = await Prayer.findAll({ where: { userId: userId } });
-    
+
     res.status(200).send(ownPrayers);
+  } catch (error) {
+    res.status(400).send("Error en la busqueda de oraciones " + error);
+  }
+});
+
+router.get("/getall/:userId", authenticateProtection, async (req, res) => {
+  try {
+    const userId = req.params.userId;
+
+    const allPrayers = await Prayer.findAll({
+      where: { userId: { [Op.ne]: userId } },
+    });
+
+    res.status(200).send(allPrayers);
   } catch (error) {
     res.status(400).send("Error en la busqueda de oraciones " + error);
   }
