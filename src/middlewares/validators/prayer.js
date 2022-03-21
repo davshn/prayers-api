@@ -1,6 +1,6 @@
 const { check } = require("express-validator");
 
-const { Category } = require("../../models/index");
+const { Category,User } = require("../../models/index");
 const { validateResults } = require("../validateResults");
 
 const validateCreation = [
@@ -14,10 +14,17 @@ const validateCreation = [
     .isString()
     .isLength({ max: 200 })
     .withMessage("Contenido incorrecto"),
-  check("userId").exists().isString().withMessage("Id de usuario incorrecto"),
+  check("userId")
+    .exists()
+    .withMessage("Id de usuario incorrecto")
+    .custom((value) => {
+      return User.findOne({ where: { id: value } }).then((user) => {
+        if (!user) return Promise.reject("Usuario no existe");
+      });
+    }),
+  ,
   check("categoryId")
     .exists()
-    .isInt()
     .withMessage("Id de categoria incorrecto")
     .custom((value) => {
       return Category.findOne({ where: { id: value } }).then((category) => {
