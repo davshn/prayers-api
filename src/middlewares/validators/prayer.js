@@ -22,7 +22,6 @@ const validateCreation = [
         if (!user) return Promise.reject("Usuario no existe");
       });
     }),
-  ,
   check("categoryId")
     .exists()
     .withMessage("Id de categoria incorrecto")
