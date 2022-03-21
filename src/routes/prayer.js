@@ -30,14 +30,11 @@ router.get("/getown/:userId", authenticateProtection, async (req, res) => {
   try {
     const userId = req.params.userId;
 
-    const ownPrayers = await Prayer.findAll(
-      { where: { userId: userId } },
-      { include: Category }
-    );
-
+    const ownPrayers = await Prayer.findAll({ where: { userId: userId } });
+    
     res.status(200).send(ownPrayers);
   } catch (error) {
-    res.status(400).send("Error en la creacion de oracion " + error);
+    res.status(400).send("Error en la busqueda de oraciones " + error);
   }
 });
 
