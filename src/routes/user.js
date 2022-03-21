@@ -60,7 +60,7 @@ router.post("/login", validateLogin, async (req, res) => {
   }
 });
 
-router.get("/userinfo/:userId", authenticateProtection, async (req, res) => {
+router.get("/info/:userId", authenticateProtection, async (req, res) => {
   try {
     const userId = req.params.userId;
 
