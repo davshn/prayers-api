@@ -1,6 +1,6 @@
 const { Router } = require("express");
 
-const { Prayer, Category } = require("../models/index");
+const { Prayer } = require("../models/index");
 const authenticateProtection = require("../middlewares/authenticateProtection");
 const { validateCreation } = require("../middlewares/validators/prayer");
 
