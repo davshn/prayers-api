@@ -1,5 +1,6 @@
 const { check } = require("express-validator");
 
+const { Category } = require("../../models/index");
 const { validateResults } = require("../validateResults");
 
 const validateCreation = [
