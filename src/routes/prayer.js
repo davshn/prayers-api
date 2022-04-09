@@ -3,18 +3,20 @@ const { Op } = require("sequelize");
 
 const { User } = require("../models/index");
 const { Prayer } = require("../models/index");
-const authenticateProtection = require("../middlewares/authenticateProtection");
+const authenticateProtection = require("../middlewares/authentication/authenticateProtection");
+const ownUserProtection = require("../middlewares/authentication/ownUserProtection");
 const { validateCreation } = require("../middlewares/validators/prayer");
 
 const router = Router();
 
 router.post(
-  "/create",
+  "/create/:userId",
   authenticateProtection,
+  ownUserProtection,
   validateCreation,
   async (req, res) => {
     try {
-      const userId = req.body.userId;
+      const userId = req.params.userId;
       const user = await User.findOne({ where: { id: userId } });
 
       if (user.prayersToCreate > 0) {
@@ -26,7 +28,7 @@ router.post(
         await Prayer.create({
           title: req.body.title,
           text: req.body.text,
-          userId: req.body.userId,
+          userId: req.params.userId,
           categoryId: req.body.categoryId,
         });
         res.status(200).send("Oracion creada con exito");
@@ -39,35 +41,46 @@ router.post(
   }
 );
 
-router.get("/getown/:userId", authenticateProtection, async (req, res) => {
-  try {
-    const userId = req.params.userId;
+router.get(
+  "/getown/:userId",
+  authenticateProtection,
+  ownUserProtection,
+  async (req, res) => {
+    try {
+      const userId = req.params.userId;
 
-    const ownPrayers = await Prayer.findAll({ where: { userId: userId } });
+      const ownPrayers = await Prayer.findAll({ where: { userId: userId } });
 
-    res.status(200).send(ownPrayers);
-  } catch (error) {
-    res.status(400).send("Error en la busqueda de oraciones " + error);
+      res.status(200).send(ownPrayers);
+    } catch (error) {
+      res.status(400).send("Error en la busqueda de oraciones " + error);
+    }
   }
-});
+);
 
-router.get("/getall/:userId", authenticateProtection, async (req, res) => {
-  try {
-    const userId = req.params.userId;
+router.get(
+  "/getall/:userId",
+  authenticateProtection,
+  ownUserProtection,
+  async (req, res) => {
+    try {
+      const userId = req.params.userId;
 
-    const allPrayers = await Prayer.findAll({
-      where: { userId: { [Op.ne]: userId } },
-    });
+      const allPrayers = await Prayer.findAll({
+        where: { userId: { [Op.ne]: userId } },
+      });
 
-    res.status(200).send(allPrayers);
-  } catch (error) {
-    res.status(400).send("Error en la busqueda de oraciones " + error);
+      res.status(200).send(allPrayers);
+    } catch (error) {
+      res.status(400).send("Error en la busqueda de oraciones " + error);
+    }
   }
-});
+);
 
 router.get(
   "/getsupported/:userId",
   authenticateProtection,
+  ownUserProtection,
   async (req, res) => {
     try {
       const userId = req.params.userId;

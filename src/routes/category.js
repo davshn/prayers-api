@@ -2,11 +2,11 @@ const { Router } = require("express");
 
 const { Category } = require("../models/index");
 const setCategories = require("../microservices/setCategories");
-const authenticateProtection = require('../middlewares/authenticateProtection');
+const authenticateProtection = require("../middlewares/authentication/authenticateProtection");
 
 const router = Router();
 
-router.get("/getall",authenticateProtection, async (req, res) => {
+router.get("/getall", authenticateProtection, async (req, res) => {
   try {
     await setCategories();
     const allCategories = await Category.findAll();

@@ -4,7 +4,8 @@ const jwt = require("jsonwebtoken");
 
 const { User } = require("../models/index");
 const verification = require("../microservices/emails/verificationEmail");
-const authenticateProtection = require("../middlewares/authenticateProtection");
+const authenticateProtection = require("../middlewares/authentication/authenticateProtection");
+const ownUserProtection = require("../middlewares/authentication/ownUserProtection");
 const {
   validateRegister,
   validateLogin,
@@ -60,26 +61,31 @@ router.post("/login", validateLogin, async (req, res) => {
   }
 });
 
-router.get("/info/:userId", authenticateProtection, async (req, res) => {
-  try {
-    const userId = req.params.userId;
+router.get(
+  "/info/:userId",
+  authenticateProtection,
+  ownUserProtection,
+  async (req, res) => {
+    try {
+      const userId = req.params.userId;
 
-    const user = await User.findOne({ where: { id: userId } });
+      const user = await User.findOne({ where: { id: userId } });
 
-    const userInfo = {
-      name: user.name,
-      lastname: user.lastname,
-      email: user.email,
-      isAutenticated: true,
-      createdPrayers: user.createdPrayers,
-      createdComments: user.createdComments,
-      prayersToCreate: user.prayersToCreate,
-    };
+      const userInfo = {
+        name: user.name,
+        lastname: user.lastname,
+        email: user.email,
+        isAutenticated: true,
+        createdPrayers: user.createdPrayers,
+        createdComments: user.createdComments,
+        prayersToCreate: user.prayersToCreate,
+      };
 
-    res.status(200).json(userInfo);
-  } catch (error) {
-    res.status(405).send("Error al obtener datos de usuario");
+      res.status(200).json(userInfo);
+    } catch (error) {
+      res.status(405).send("Error al obtener datos de usuario");
+    }
   }
-});
+);
 
 module.exports = router;
