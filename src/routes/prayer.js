@@ -1,8 +1,7 @@
 const { Router } = require("express");
 const { Op } = require("sequelize");
 
-const { User } = require("../models/index");
-const { Prayer } = require("../models/index");
+const { User, Prayer, Comment } = require("../models/index");
 const authenticateProtection = require("../middlewares/authentication/authenticateProtection");
 const ownUserProtection = require("../middlewares/authentication/ownUserProtection");
 const { validateCreation } = require("../middlewares/validators/prayer");
@@ -22,6 +21,7 @@ router.post(
       if (user.prayersToCreate > 0) {
         await user.set({
           prayersToCreate: user.prayersToCreate - 1,
+          createdPrayers: user.createdPrayers + 1,
         });
         await user.save();
 
@@ -85,13 +85,33 @@ router.get(
     try {
       const userId = req.params.userId;
 
-      const allPrayers = await Prayer.findAll({
+      const suportedPrayers = await Prayer.findAll({
         where: { userId: { [Op.ne]: userId } },
       });
 
-      res.status(200).send(allPrayers);
+      res.status(200).send(suportedPrayers);
     } catch (error) {
       res.status(400).send("Error en la busqueda de oraciones " + error);
+    }
+  }
+);
+
+router.get(
+  "/detailed/:userId/:prayerId",
+  authenticateProtection,
+  ownUserProtection,
+  async (req, res) => {
+    try {
+      const prayerId = req.params.prayerId;
+
+      const prayer = await Prayer.findOne({
+        where: { id: prayerId },
+        include: Comment,
+      });
+
+      res.status(200).send(prayer);
+    } catch (error) {
+      res.status(400).send("La Oracion no existe " + error);
     }
   }
 );

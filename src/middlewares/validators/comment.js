@@ -1,25 +1,20 @@
 const { check } = require("express-validator");
 
-const { Category } = require("../../models/index");
+const { Prayer } = require("../../models/index");
 const { validateResults } = require("../validateResults");
 
 const validateCreation = [
-  check("title")
-    .exists()
-    .isString()
-    .isLength({ max: 50 })
-    .withMessage("Titulo incorrecto"),
   check("text")
     .exists()
     .isString()
     .isLength({ max: 200 })
     .withMessage("Contenido incorrecto"),
-  check("categoryId")
+  check("prayerId")
     .exists()
-    .withMessage("Id de categoria incorrecto")
+    .withMessage("Id de oracion incorrecto")
     .custom((value) => {
-      return Category.findOne({ where: { id: value } }).then((category) => {
-        if (!category) return Promise.reject("Categoria no existe");
+      return Prayer.findOne({ where: { id: value } }).then((prayer) => {
+        if (!prayer) return Promise.reject("Oracion no existe");
       });
     }),
   (req, res, next) => {
