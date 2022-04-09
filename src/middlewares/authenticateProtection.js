@@ -5,7 +5,7 @@ const authenticateProtection = (req, res, next) => {
   const token = req.header("token");
 
   if (!token) {
-    return res.status(403).send("Se requiere ser un usuario registrado");
+    return res.status(403).send("Se requiere ser un usuario autenticado");
   }
   try {
     const decoded = jwt.verify(token, TOKEN_KEY);
