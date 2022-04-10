@@ -3,7 +3,10 @@ const { Router } = require("express");
 const { User, Comment, Prayer } = require("../models/index");
 const authenticateProtection = require("../middlewares/authentication/authenticateProtection");
 const ownUserProtection = require("../middlewares/authentication/ownUserProtection");
-const { validateCreation } = require("../middlewares/validators/comment");
+const {
+  validateCreation,
+  validateEdit,
+} = require("../middlewares/validators/comment");
 
 const router = Router();
 
@@ -48,6 +51,34 @@ router.get(
       });
 
       res.status(200).send(ownComments);
+    } catch (error) {
+      res.status(400).send("Error en la busqueda de comentarios " + error);
+    }
+  }
+);
+
+router.patch(
+  "/edit/:userId/:commentId",
+  authenticateProtection,
+  ownUserProtection,
+  validateEdit,
+  async (req, res) => {
+    try {
+      const commentId = req.params.commentId;
+      const userId = req.params.userId;
+
+      const comment = await Comment.findOne({
+        where: { id: commentId },
+      });
+
+      if (userId === comment.userId) {
+        await comment.set({
+          text: req.body.text,
+        });
+        await comment.save();
+
+        res.status(200).send("Comentario modificado");
+      } else res.status(200).send("El comentario no pertenece al usuario");
     } catch (error) {
       res.status(400).send("Error en la busqueda de comentarios " + error);
     }

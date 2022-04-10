@@ -22,6 +22,18 @@ const validateCreation = [
   },
 ];
 
+const validateEdit = [
+  check("text")
+    .exists()
+    .isString()
+    .isLength({ max: 200 })
+    .withMessage("Contenido incorrecto"),
+  (req, res, next) => {
+    validateResults(req, res, next);
+  },
+];
+
 module.exports = {
   validateCreation: validateCreation,
+  validateEdit: validateEdit,
 };

@@ -4,7 +4,10 @@ const { Op } = require("sequelize");
 const { User, Prayer, Comment } = require("../models/index");
 const authenticateProtection = require("../middlewares/authentication/authenticateProtection");
 const ownUserProtection = require("../middlewares/authentication/ownUserProtection");
-const { validateCreation } = require("../middlewares/validators/prayer");
+const {
+  validateCreation,
+  validateEdit,
+} = require("../middlewares/validators/prayer");
 
 const router = Router();
 
@@ -112,6 +115,34 @@ router.get(
       res.status(200).send(prayer);
     } catch (error) {
       res.status(400).send("La Oracion no existe " + error);
+    }
+  }
+);
+
+router.patch(
+  "/edit/:userId/:prayerId",
+  authenticateProtection,
+  ownUserProtection,
+  validateEdit,
+  async (req, res) => {
+    try {
+      const prayerId = req.params.prayerId;
+      const userId = req.params.userId;
+
+      const prayer = await Prayer.findOne({
+        where: { id: prayerId },
+      });
+
+      if (userId === prayer.userId) {
+        await prayer.set({
+          text: req.body.text,
+        });
+        await prayer.save();
+
+        res.status(200).send("Oracion modificada");
+      } else res.status(403).send("La oracion no pertenece al usuario");
+    } catch (error) {
+      res.status(400).send("Error en la busqueda de comentarios " + error);
     }
   }
 );
