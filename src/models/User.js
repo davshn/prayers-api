@@ -46,6 +46,10 @@ module.exports = (sequelize) => {
         type: DataTypes.INTEGER,
         defaultValue: 3,
       },
+      refreshToken: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
     },
     {
       sequelize,

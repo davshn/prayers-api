@@ -46,6 +46,7 @@ router.post("/login", validateLogin, async (req, res) => {
     const email = req.body.email.toLowerCase();
     const password = req.body.password;
     const version = req.body.version;
+    const refreshToken = req.body.refreshToken;
 
     if (version !== VERSION) {
       res.status(426).send("Actualiza tu aplicacion");
@@ -54,8 +55,10 @@ router.post("/login", validateLogin, async (req, res) => {
 
       if (user && (await bcrypt.compare(password, user.password))) {
         const token = jwt.sign({ id: user.id, email: user.email }, TOKEN_KEY, {
-          expiresIn: "2h",
+          expiresIn: "1h",
         });
+        await user.set({ refreshToken: refreshToken });
+        await user.save();
 
         user.token = token;
         const loggedUser = {
@@ -69,7 +72,7 @@ router.post("/login", validateLogin, async (req, res) => {
       }
     }
   } catch (error) {
-    res.status(400).send("Error en el login");
+    res.status(400).send("Error en el login" + error);
   }
 });
 

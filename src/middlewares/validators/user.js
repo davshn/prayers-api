@@ -35,6 +35,16 @@ const validateLogin = [
     .isString()
     .isStrongPassword()
     .withMessage("La contraseña es requerida"),
+  check("version")
+    .exists()
+    .isString()
+    .isLength({ min: 3 })
+    .withMessage("La version es requerida"),
+  check("refreshToken")
+    .exists()
+    .isString()
+    .isLength({ min: 5 })
+    .withMessage("El refreshToken es requerido"),
   (req, res, next) => {
     validateResults(req, res, next);
   },
