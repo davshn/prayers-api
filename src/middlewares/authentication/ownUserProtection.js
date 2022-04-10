@@ -4,10 +4,10 @@ const ownUserProtection = (req, res, next) => {
 
   try {
     if (tokenUser !== userId) {
-      return res.status(403).send("Usuario invalido, Usuario reportado");
+      return res.status(409).send("Usuario invalido, Usuario reportado");
     }
   } catch (err) {
-    return res.status(401).send("Usuario invalido");
+    return res.status(400).send("Error en validacion de usuario");
   }
   return next();
 };

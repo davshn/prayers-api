@@ -22,7 +22,7 @@ router.post("/register", validateRegister, async (req, res) => {
     const version = req.body.version;
 
     if (version !== VERSION) {
-      res.status(409).send("Actualiza tu aplicacion");
+      res.status(426).send("Actualiza tu aplicacion");
     } else {
       const newUser = await User.create({
         dateOfBirth: req.body.dateOfBirth,
@@ -48,7 +48,7 @@ router.post("/login", validateLogin, async (req, res) => {
     const version = req.body.version;
 
     if (version !== VERSION) {
-      res.status(409).send("Actualiza tu aplicacion");
+      res.status(426).send("Actualiza tu aplicacion");
     } else {
       const user = await User.findOne({ where: { email } });
 
@@ -69,7 +69,7 @@ router.post("/login", validateLogin, async (req, res) => {
       }
     }
   } catch (error) {
-    res.status(405).send("Error en el login");
+    res.status(400).send("Error en el login");
   }
 });
 
@@ -95,7 +95,7 @@ router.get(
 
       res.status(200).json(userInfo);
     } catch (error) {
-      res.status(405).send("Error al obtener datos de usuario");
+      res.status(400).send("Error al obtener datos de usuario");
     }
   }
 );
