@@ -142,7 +142,7 @@ router.patch(
         res.status(200).send("Oracion modificada");
       } else res.status(403).send("La oracion no pertenece al usuario");
     } catch (error) {
-      res.status(400).send("Error en la busqueda de comentarios " + error);
+      res.status(400).send("Error en la modificacion de la oracion " + error);
     }
   }
 );

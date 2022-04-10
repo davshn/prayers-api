@@ -9,6 +9,7 @@ const ownUserProtection = require("../middlewares/authentication/ownUserProtecti
 const {
   validateRegister,
   validateLogin,
+  validateEdit,
 } = require("../middlewares/validators/user");
 
 const router = Router();
@@ -84,6 +85,44 @@ router.get(
       res.status(200).json(userInfo);
     } catch (error) {
       res.status(405).send("Error al obtener datos de usuario");
+    }
+  }
+);
+
+router.patch(
+  "/edit/:userId",
+  authenticateProtection,
+  ownUserProtection,
+  validateEdit,
+  async (req, res) => {
+    try {
+      const userId = req.params.userId;
+
+      const user = await User.findOne({
+        where: { id: userId },
+      });
+
+      if (req.body.name) {
+        await user.set({
+          name: req.body.name,
+        });
+      }
+      if (req.body.lastname) {
+        await user.set({
+          lastname: req.body.lastname,
+        });
+      }
+      if (req.body.password) {
+        const salt = await bcrypt.genSalt(10);
+        await user.set({
+          password: await bcrypt.hash(req.body.password, salt),
+        });
+      }
+      await user.save();
+
+      res.status(200).send("Usuario modificado");
+    } catch (error) {
+      res.status(400).send("Error en la edicion de usuario " + error);
     }
   }
 );

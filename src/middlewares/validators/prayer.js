@@ -7,11 +7,12 @@ const validateCreation = [
   check("title")
     .exists()
     .isString()
-    .isLength({ max: 50 })
+    .isLength({ min: 3, max: 50 })
     .withMessage("Titulo incorrecto"),
   check("text")
     .exists()
     .isString()
+    .notEmpty()
     .isLength({ max: 200 })
     .withMessage("Contenido incorrecto"),
   check("categoryId")

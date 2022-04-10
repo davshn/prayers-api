@@ -80,7 +80,7 @@ router.patch(
         res.status(200).send("Comentario modificado");
       } else res.status(200).send("El comentario no pertenece al usuario");
     } catch (error) {
-      res.status(400).send("Error en la busqueda de comentarios " + error);
+      res.status(400).send("Error en la modificacion del comentario " + error);
     }
   }
 );

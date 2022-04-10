@@ -7,6 +7,7 @@ const validateCreation = [
   check("text")
     .exists()
     .isString()
+    .notEmpty()
     .isLength({ max: 200 })
     .withMessage("Contenido incorrecto"),
   check("prayerId")
@@ -26,6 +27,7 @@ const validateEdit = [
   check("text")
     .exists()
     .isString()
+    .notEmpty()
     .isLength({ max: 200 })
     .withMessage("Contenido incorrecto"),
   (req, res, next) => {
