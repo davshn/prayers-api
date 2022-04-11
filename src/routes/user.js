@@ -6,6 +6,7 @@ const { User } = require("../models/index");
 const verification = require("../microservices/emails/verificationEmail");
 const authenticateProtection = require("../middlewares/authentication/authenticateProtection");
 const ownUserProtection = require("../middlewares/authentication/ownUserProtection");
+const refreshTokenProtection = require("../middlewares/authentication/refreshTokenProtection");
 const {
   validateRegister,
   validateLogin,
@@ -16,14 +17,13 @@ const router = Router();
 const { TOKEN_KEY, VERSION } = process.env;
 
 router.post("/register", validateRegister, async (req, res) => {
-  const salt = await bcrypt.genSalt(10);
-
   try {
     const version = req.body.version;
 
     if (version !== VERSION) {
       res.status(426).send("Actualiza tu aplicacion");
     } else {
+      const salt = await bcrypt.genSalt(10);
       const newUser = await User.create({
         dateOfBirth: req.body.dateOfBirth,
         name: req.body.name,
@@ -57,6 +57,7 @@ router.post("/login", validateLogin, async (req, res) => {
         const token = jwt.sign({ id: user.id, email: user.email }, TOKEN_KEY, {
           expiresIn: "1h",
         });
+
         await user.set({ refreshToken: refreshToken });
         await user.save();
 
@@ -140,5 +141,49 @@ router.patch(
     }
   }
 );
+
+router.post("/refresh/:userId", refreshTokenProtection, async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const version = req.body.version;
+    const refreshToken = req.header("RefreshToken");
+    const tokenUserId = req.user.id;
+
+    if (version !== VERSION) {
+      res.status(426).send("Actualiza tu aplicacion");
+    } else {
+      const user = await User.findOne({ where: { id: userId } });
+      if (tokenUserId !== userId) {
+        await user.set({ refreshToken: "" });
+        await user.save();
+        return res.status(409).send("Usuario invalido, Usuario reportado");
+      } else {
+        if (user && refreshToken === user.refreshToken) {
+          const token = jwt.sign(
+            { id: user.id, email: user.email },
+            TOKEN_KEY,
+            {
+              expiresIn: "1h",
+            }
+          );
+
+          user.token = token;
+          const loggedUser = {
+            token: user.token,
+            id: user.id,
+          };
+
+          res.status(200).json(loggedUser);
+        } else {
+          await user.set({ refreshToken: "" });
+          await user.save();
+          res.status(402).send("Credenciales incorrectas");
+        }
+      }
+    }
+  } catch (error) {
+    res.status(400).send("Error en el login" + error);
+  }
+});
 
 module.exports = router;
