@@ -40,11 +40,11 @@ const validateLogin = [
     .isString()
     .isLength({ min: 3 })
     .withMessage("La version es requerida"),
-  check("refreshToken")
+  check("deviceInfo")
     .exists()
     .isString()
     .isLength({ min: 5 })
-    .withMessage("El refreshToken es requerido"),
+    .withMessage("La informacion del dispositivo es requerida"),
   (req, res, next) => {
     validateResults(req, res, next);
   },

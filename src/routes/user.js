@@ -5,8 +5,8 @@ const jwt = require("jsonwebtoken");
 const { User } = require("../models/index");
 const verification = require("../microservices/emails/verificationEmail");
 const authenticateProtection = require("../middlewares/authentication/authenticateProtection");
-const ownUserProtection = require("../middlewares/authentication/ownUserProtection");
 const refreshTokenProtection = require("../middlewares/authentication/refreshTokenProtection");
+
 const {
   validateRegister,
   validateLogin,
@@ -46,7 +46,7 @@ router.post("/login", validateLogin, async (req, res) => {
     const email = req.body.email.toLowerCase();
     const password = req.body.password;
     const version = req.body.version;
-    const refreshToken = req.body.refreshToken;
+    const deviceInfo = req.body.deviceInfo;
 
     if (version !== VERSION) {
       res.status(426).send("Actualiza tu aplicacion");
@@ -54,17 +54,25 @@ router.post("/login", validateLogin, async (req, res) => {
       const user = await User.findOne({ where: { email } });
 
       if (user && (await bcrypt.compare(password, user.password))) {
-        const token = jwt.sign({ id: user.id, email: user.email }, TOKEN_KEY, {
-          expiresIn: "1h",
-        });
+        const salt = await bcrypt.genSalt(10);
+        const token = jwt.sign(
+          {
+            id: user.id,
+            email: user.email,
+            deviceInfo: await bcrypt.hash(deviceInfo, salt),
+          },
+          TOKEN_KEY,
+          {
+            expiresIn: "1h",
+          }
+        );
 
-        await user.set({ refreshToken: refreshToken });
+        await user.set({ deviceInfo: deviceInfo });
         await user.save();
 
         user.token = token;
         const loggedUser = {
           token: user.token,
-          id: user.id,
         };
 
         res.status(200).json(loggedUser);
@@ -77,41 +85,34 @@ router.post("/login", validateLogin, async (req, res) => {
   }
 });
 
-router.get(
-  "/info/:userId",
-  authenticateProtection,
-  ownUserProtection,
-  async (req, res) => {
-    try {
-      const userId = req.params.userId;
+router.get("/info", authenticateProtection, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const user = await User.findOne({ where: { id: userId } });
 
-      const user = await User.findOne({ where: { id: userId } });
+    const userInfo = {
+      name: user.name,
+      lastname: user.lastname,
+      email: user.email,
+      isAutenticated: true,
+      createdPrayers: user.createdPrayers,
+      createdComments: user.createdComments,
+      prayersToCreate: user.prayersToCreate,
+    };
 
-      const userInfo = {
-        name: user.name,
-        lastname: user.lastname,
-        email: user.email,
-        isAutenticated: true,
-        createdPrayers: user.createdPrayers,
-        createdComments: user.createdComments,
-        prayersToCreate: user.prayersToCreate,
-      };
-
-      res.status(200).json(userInfo);
-    } catch (error) {
-      res.status(400).send("Error al obtener datos de usuario");
-    }
+    res.status(200).json(userInfo);
+  } catch (error) {
+    res.status(400).send("Error al obtener datos de usuario");
   }
-);
+});
 
 router.patch(
-  "/edit/:userId",
+  "/edit",
   authenticateProtection,
-  ownUserProtection,
   validateEdit,
   async (req, res) => {
     try {
-      const userId = req.params.userId;
+      const userId = req.user.id;
 
       const user = await User.findOne({
         where: { id: userId },
@@ -142,43 +143,44 @@ router.patch(
   }
 );
 
-router.post("/refresh/:userId", refreshTokenProtection, async (req, res) => {
+router.post("/refresh", refreshTokenProtection, async (req, res) => {
   try {
-    const userId = req.params.userId;
     const version = req.body.version;
     const refreshToken = req.header("RefreshToken");
-    const tokenUserId = req.user.id;
+    const userId = req.user.id;
+    const deviceInfo = req.user.deviceInfo;
 
     if (version !== VERSION) {
       res.status(426).send("Actualiza tu aplicacion");
     } else {
       const user = await User.findOne({ where: { id: userId } });
-      if (tokenUserId !== userId) {
-        await user.set({ refreshToken: "" });
-        await user.save();
-        return res.status(409).send("Usuario invalido, Usuario reportado");
-      } else {
-        if (user && refreshToken === user.refreshToken) {
-          const token = jwt.sign(
-            { id: user.id, email: user.email },
-            TOKEN_KEY,
-            {
-              expiresIn: "1h",
-            }
-          );
-
-          user.token = token;
-          const loggedUser = {
-            token: user.token,
+      if (
+        (await bcrypt.compare(refreshToken, deviceInfo)) &&
+        refreshToken === user.deviceInfo
+      ) {
+        const salt = await bcrypt.genSalt(10);
+        
+        const token = jwt.sign(
+          {
             id: user.id,
-          };
-
-          res.status(200).json(loggedUser);
-        } else {
-          await user.set({ refreshToken: "" });
-          await user.save();
-          res.status(402).send("Credenciales incorrectas");
-        }
+            email: user.email,
+            deviceInfo: await bcrypt.hash(deviceInfo, salt),
+          },
+          TOKEN_KEY,
+          {
+            expiresIn: "1h",
+          }
+        );
+        
+        user.token = token;
+        const loggedUser = {
+          token: user.token,
+        };
+        res.status(200).json(loggedUser);
+      } else {
+        await user.set({ deviceInfo: "" });
+        await user.save();
+        res.status(409).send("Dispositivo desconocido");
       }
     }
   } catch (error) {

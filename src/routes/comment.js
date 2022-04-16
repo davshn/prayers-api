@@ -2,7 +2,6 @@ const { Router } = require("express");
 
 const { User, Comment, Prayer } = require("../models/index");
 const authenticateProtection = require("../middlewares/authentication/authenticateProtection");
-const ownUserProtection = require("../middlewares/authentication/ownUserProtection");
 const {
   validateCreation,
   validateEdit,
@@ -11,13 +10,13 @@ const {
 const router = Router();
 
 router.post(
-  "/create/:userId",
+  "/create",
   authenticateProtection,
-  ownUserProtection,
   validateCreation,
   async (req, res) => {
     try {
-      const userId = req.params.userId;
+      const userId = req.user.id;
+      
       const user = await User.findOne({ where: { id: userId } });
 
       await user.set({
@@ -38,12 +37,11 @@ router.post(
 );
 
 router.get(
-  "/getown/:userId",
+  "/getown",
   authenticateProtection,
-  ownUserProtection,
   async (req, res) => {
     try {
-      const userId = req.params.userId;
+      const userId = req.user.id;
 
       const ownComments = await Comment.findAll({
         where: { userId: userId },
@@ -58,14 +56,13 @@ router.get(
 );
 
 router.patch(
-  "/edit/:userId/:commentId",
+  "/edit/:commentId",
   authenticateProtection,
-  ownUserProtection,
   validateEdit,
   async (req, res) => {
     try {
       const commentId = req.params.commentId;
-      const userId = req.params.userId;
+      const userId = req.user.id;
 
       const comment = await Comment.findOne({
         where: { id: commentId },

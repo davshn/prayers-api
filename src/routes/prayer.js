@@ -3,7 +3,6 @@ const { Op } = require("sequelize");
 
 const { User, Prayer, Comment } = require("../models/index");
 const authenticateProtection = require("../middlewares/authentication/authenticateProtection");
-const ownUserProtection = require("../middlewares/authentication/ownUserProtection");
 const {
   validateCreation,
   validateEdit,
@@ -12,13 +11,12 @@ const {
 const router = Router();
 
 router.post(
-  "/create/:userId",
+  "/create",
   authenticateProtection,
-  ownUserProtection,
   validateCreation,
   async (req, res) => {
     try {
-      const userId = req.params.userId;
+      const userId = req.user.id;
       const user = await User.findOne({ where: { id: userId } });
 
       if (user.prayersToCreate > 0) {
@@ -45,12 +43,11 @@ router.post(
 );
 
 router.get(
-  "/getown/:userId",
+  "/getown",
   authenticateProtection,
-  ownUserProtection,
   async (req, res) => {
     try {
-      const userId = req.params.userId;
+      const userId = req.user.id;
 
       const ownPrayers = await Prayer.findAll({ where: { userId: userId } });
 
@@ -62,12 +59,11 @@ router.get(
 );
 
 router.get(
-  "/getall/:userId",
+  "/getall",
   authenticateProtection,
-  ownUserProtection,
   async (req, res) => {
     try {
-      const userId = req.params.userId;
+      const userId = req.user.id;
 
       const allPrayers = await Prayer.findAll({
         where: { userId: { [Op.ne]: userId } },
@@ -81,12 +77,11 @@ router.get(
 );
 
 router.get(
-  "/getsupported/:userId",
+  "/getsupported",
   authenticateProtection,
-  ownUserProtection,
   async (req, res) => {
     try {
-      const userId = req.params.userId;
+      const userId = req.user.id;
 
       const suportedPrayers = await Prayer.findAll({
         where: { userId: { [Op.ne]: userId } },
@@ -100,9 +95,8 @@ router.get(
 );
 
 router.get(
-  "/detailed/:userId/:prayerId",
+  "/detailed/:prayerId",
   authenticateProtection,
-  ownUserProtection,
   async (req, res) => {
     try {
       const prayerId = req.params.prayerId;
@@ -120,14 +114,13 @@ router.get(
 );
 
 router.patch(
-  "/edit/:userId/:prayerId",
+  "/edit",
   authenticateProtection,
-  ownUserProtection,
   validateEdit,
   async (req, res) => {
     try {
       const prayerId = req.params.prayerId;
-      const userId = req.params.userId;
+      const userId = req.user.id;
 
       const prayer = await Prayer.findOne({
         where: { id: prayerId },

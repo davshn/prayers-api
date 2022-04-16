@@ -46,7 +46,7 @@ module.exports = (sequelize) => {
         type: DataTypes.INTEGER,
         defaultValue: 3,
       },
-      refreshToken: {
+      deviceInfo: {
         type: DataTypes.STRING,
         allowNull: true,
       },

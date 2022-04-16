@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node ./",
     "dev": "nodemon ./",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest --verbose",
+    "test-watch": "npm run test -- --watch"
   },
   "repository": {
     "type": "git",
@@ -19,7 +20,9 @@
   },
   "homepage": "https://github.com/davshn/prayers-api#readme",
   "devDependencies": {
-    "nodemon": "^2.0.15"
+    "jest": "^27.5.1",
+    "nodemon": "^2.0.15",
+    "supertest": "^6.2.2"
   },
   "dependencies": {
     "bcrypt": "^5.0.1",
