@@ -5,7 +5,7 @@ const { PORT } = process.env;
 
 // Sync all models,
 
-conection.sync({ force: false }).then(() => {
+conection.sync({ force: false, logging: false }).then(() => {
   server.listen(PORT, () => {
     //Run server in PORT
     console.log("%s listening at " + PORT);

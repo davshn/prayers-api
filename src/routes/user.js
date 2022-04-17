@@ -25,7 +25,7 @@ router.post("/register", validateRegister, async (req, res) => {
     } else {
       const salt = await bcrypt.genSalt(10);
       const newUser = await User.create({
-        dateOfBirth: req.body.dateOfBirth,
+        dateOfBirth: new Date(req.body.dateOfBirth),
         name: req.body.name,
         lastname: req.body.lastname,
         email: req.body.email.toLowerCase(),
