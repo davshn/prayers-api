@@ -26,7 +26,7 @@ router.post(
 
       await Comment.create({
         text: req.body.text,
-        userId: req.params.userId,
+        userId: userId,
         prayerId: req.body.prayerId,
       });
       res.status(200).send("Comentario creado con exito");

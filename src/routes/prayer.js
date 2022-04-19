@@ -29,7 +29,7 @@ router.post(
         await Prayer.create({
           title: req.body.title,
           text: req.body.text,
-          userId: req.params.userId,
+          userId: userId,
           categoryId: req.body.categoryId,
         });
         res.status(200).send("Oracion creada con exito");
@@ -42,76 +42,60 @@ router.post(
   }
 );
 
-router.get(
-  "/getown",
-  authenticateProtection,
-  async (req, res) => {
-    try {
-      const userId = req.user.id;
+router.get("/getown", authenticateProtection, async (req, res) => {
+  try {
+    const userId = req.user.id;
 
-      const ownPrayers = await Prayer.findAll({ where: { userId: userId } });
+    const ownPrayers = await Prayer.findAll({ where: { userId: userId } });
 
-      res.status(200).send(ownPrayers);
-    } catch (error) {
-      res.status(400).send("Error en la busqueda de oraciones " + error);
-    }
+    res.status(200).send(ownPrayers);
+  } catch (error) {
+    res.status(400).send("Error en la busqueda de oraciones " + error);
   }
-);
+});
 
-router.get(
-  "/getall",
-  authenticateProtection,
-  async (req, res) => {
-    try {
-      const userId = req.user.id;
+router.get("/getall", authenticateProtection, async (req, res) => {
+  try {
+    const userId = req.user.id;
 
-      const allPrayers = await Prayer.findAll({
-        where: { userId: { [Op.ne]: userId } },
-      });
+    const allPrayers = await Prayer.findAll({
+      where: { userId: { [Op.ne]: userId } },
+    });
 
-      res.status(200).send(allPrayers);
-    } catch (error) {
-      res.status(400).send("Error en la busqueda de oraciones " + error);
-    }
+    res.status(200).send(allPrayers);
+  } catch (error) {
+    res.status(400).send("Error en la busqueda de oraciones " + error);
   }
-);
+});
 
-router.get(
-  "/getsupported",
-  authenticateProtection,
-  async (req, res) => {
-    try {
-      const userId = req.user.id;
+router.get("/getsupported", authenticateProtection, async (req, res) => {
+  try {
+    const userId = req.user.id;
 
-      const suportedPrayers = await Prayer.findAll({
-        where: { userId: { [Op.ne]: userId } },
-      });
+    const suportedPrayers = await Prayer.findAll({
+      where: { userId: { [Op.ne]: userId } },
+    });
 
-      res.status(200).send(suportedPrayers);
-    } catch (error) {
-      res.status(400).send("Error en la busqueda de oraciones " + error);
-    }
+    res.status(200).send(suportedPrayers);
+  } catch (error) {
+    res.status(400).send("Error en la busqueda de oraciones " + error);
   }
-);
+});
 
-router.get(
-  "/detailed/:prayerId",
-  authenticateProtection,
-  async (req, res) => {
-    try {
-      const prayerId = req.params.prayerId;
+router.get("/detailed/:prayerId", authenticateProtection, async (req, res) => {
+  try {
+    const prayerId = req.params.prayerId;
 
-      const prayer = await Prayer.findOne({
-        where: { id: prayerId },
-        include: Comment,
-      });
+    const prayer = await Prayer.findOne({
+      where: { id: prayerId },
+      include: Comment,
+    });
 
-      res.status(200).send(prayer);
-    } catch (error) {
-      res.status(400).send("La Oracion no existe " + error);
-    }
+    res.status(200).send(prayer);
+  } catch (error) {
+    res.status(400).send("La Oracion no existe " + error);
   }
-);
+});
 
 router.patch(
   "/edit",
@@ -139,5 +123,51 @@ router.patch(
     }
   }
 );
+
+router.get("/support/:prayerId", authenticateProtection, async (req, res) => {
+  try {
+    const prayerId = req.params.prayerId;
+    const userId = req.user.id;
+
+    const prayer = await Prayer.findOne({ where: { id: prayerId } });
+
+    if (prayer.userId === userId) {
+      res.status(403).send("No puedes apoyar tus propias oraciones");
+    } else {
+      const user = await User.findOne({ where: { id: userId } });
+      prayer.addUser(user);
+
+      await prayer.set({ supporters: prayer.supporters + 1 });
+      await prayer.save();
+      res.status(200).send("Oracion apoyada con exito");
+    }
+  } catch (error) {
+    res.status(400).send("La Oracion no existe " + error);
+  }
+});
+
+router.get("/unsupport/:prayerId", authenticateProtection, async (req, res) => {
+  try {
+    const prayerId = req.params.prayerId;
+    const userId = req.user.id;
+
+    const prayer = await Prayer.findOne({ where: { id: prayerId } });
+
+    if (prayer.userId === userId) {
+      res
+        .status(403)
+        .send("No puedes eliminar el apoyo de tus propias oraciones");
+    } else {
+      const user = await User.findOne({ where: { id: userId } });
+      prayer.removeUser(user);
+
+      await prayer.set({ supporters: prayer.supporters - 1 });
+      await prayer.save();
+      res.status(200).send("Dejaste de apoyar la oracion");
+    }
+  } catch (error) {
+    res.status(400).send("La Oracion no existe " + error);
+  }
+});
 
 module.exports = router;
