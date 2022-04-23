@@ -32,7 +32,9 @@ router.post(
           text: req.body.text,
           userId: userId,
           categoryId: req.body.categoryId,
+          profileImage: req.body.profileImage,
         });
+
         res.status(200).send("Oracion creada con exito");
       } else {
         res.status(402).send("No puedes crear mas oraciones");
@@ -130,7 +132,7 @@ router.get("/detailed/:prayerId", authenticateProtection, async (req, res) => {
 });
 
 router.patch(
-  "/edit",
+  "/edit/:prayerId",
   authenticateProtection,
   validateEdit,
   async (req, res) => {
@@ -142,10 +144,25 @@ router.patch(
         where: { id: prayerId },
       });
 
-      if (userId === prayer.userId) {
-        await prayer.set({
-          text: req.body.text,
+      if (req.body.name) {
+        await user.set({
+          name: req.body.name,
         });
+      }
+
+      if (userId === prayer.userId) {
+        if (req.body.text) {
+          await prayer.set({
+            text: req.body.text,
+          });
+        }
+
+        if (req.body.profileImage) {
+          await prayer.set({
+            profileImage: req.body.profileImage,
+          });
+        }
+
         await prayer.save();
 
         res.status(200).send("Oracion modificada");
@@ -167,12 +184,14 @@ router.put("/support/:prayerId", authenticateProtection, async (req, res) => {
       res.status(403).send("No puedes apoyar tus propias oraciones");
     } else {
       const user = await User.findOne({ where: { id: userId } });
-
-      prayer.addSupported(user);
-
-      await prayer.set({ supporters: prayer.supporters + 1 });
-      await prayer.save();
-      res.status(200).send("Oracion apoyada con exito");
+      const support = await prayer.addSupported(user);
+      if (support) {
+        await prayer.set({ supporters: prayer.supporters + 1 });
+        await prayer.save();
+        res.status(200).send("Oracion apoyada con exito");
+      } else {
+        res.status(400).send("Ya apoyaste esta oracion");
+      }
     }
   } catch (error) {
     res.status(400).send("La Oracion no existe " + error);
@@ -188,15 +207,17 @@ router.put("/unsupport/:prayerId", authenticateProtection, async (req, res) => {
 
     if (prayer.userId === userId) {
       res
-        .status(403)
-        .send("No puedes eliminar el apoyo de tus propias oraciones");
+        .status(403).send("No puedes eliminar el apoyo de tus propias oraciones");
     } else {
       const user = await User.findOne({ where: { id: userId } });
-      prayer.removeSupported(user);
-
-      await prayer.set({ supporters: prayer.supporters - 1 });
-      await prayer.save();
-      res.status(200).send("Dejaste de apoyar la oracion");
+      const unsupported = await prayer.removeSupported(user);
+      if (unsupported !== 0) {
+        await prayer.set({ supporters: prayer.supporters - 1 });
+        await prayer.save();
+        res.status(200).send("Dejaste de apoyar la oracion");
+      } else {
+        res.status(400).send("No estabas apoyando esta oracion");
+      }
     }
   } catch (error) {
     res.status(400).send("La Oracion no existe " + error);

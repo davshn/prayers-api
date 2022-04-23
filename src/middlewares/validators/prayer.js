@@ -30,9 +30,13 @@ const validateCreation = [
 
 const validateEdit = [
   check("text")
-    .exists()
+    .if((value, { req }) => req.body.text)
     .isString()
     .isLength({ max: 200 })
+    .withMessage("Contenido incorrecto"),
+  check("profileImage")
+    .if((value, { req }) => req.body.profileImage)
+    .isNumeric()
     .withMessage("Contenido incorrecto"),
   (req, res, next) => {
     validateResults(req, res, next);
