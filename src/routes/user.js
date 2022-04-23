@@ -88,19 +88,20 @@ router.post("/login", validateLogin, async (req, res) => {
 router.get("/info", authenticateProtection, async (req, res) => {
   try {
     const userId = req.user.id;
-    const user = await User.findOne({ where: { id: userId } });
+    const user = await User.findOne({
+      attributes: [
+        "name",
+        "lastname",
+        "email",
+        "createdPrayers",
+        "createdComments",
+        "prayersToCreate",
+        "isBaned",
+      ],
+      where: { id: userId },
+    });
 
-    const userInfo = {
-      name: user.name,
-      lastname: user.lastname,
-      email: user.email,
-      isAutenticated: true,
-      createdPrayers: user.createdPrayers,
-      createdComments: user.createdComments,
-      prayersToCreate: user.prayersToCreate,
-    };
-
-    res.status(200).json(userInfo);
+    res.status(200).json(user);
   } catch (error) {
     res.status(400).send("Error al obtener datos de usuario");
   }
@@ -159,7 +160,7 @@ router.post("/refresh", refreshTokenProtection, async (req, res) => {
         refreshToken === user.deviceInfo
       ) {
         const salt = await bcrypt.genSalt(10);
-        
+
         const token = jwt.sign(
           {
             id: user.id,
@@ -171,7 +172,7 @@ router.post("/refresh", refreshTokenProtection, async (req, res) => {
             expiresIn: "1h",
           }
         );
-        
+
         user.token = token;
         const loggedUser = {
           token: user.token,
@@ -184,7 +185,7 @@ router.post("/refresh", refreshTokenProtection, async (req, res) => {
       }
     }
   } catch (error) {
-    res.status(400).send("Error en el login" + error);
+    res.status(400).send("Error en el refresh" + error);
   }
 });
 

@@ -60,8 +60,8 @@ Comment.belongsTo(Prayer);
 
 //Relations M:M
 
-Prayer.belongsToMany(User, { through: "supportedby" });
-User.belongsToMany(Prayer, { through: "supportedby" });
+Prayer.belongsToMany(User, { as: "supported", through: "supportedby" });
+User.belongsToMany(Prayer, { as: "suports", through: "supportedby" });
 
 module.exports = {
   ...sequelize.models,

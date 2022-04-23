@@ -1,5 +1,6 @@
 const { Router } = require("express");
 const { Op } = require("sequelize");
+const sequelize = require("sequelize");
 
 const { User, Prayer, Comment } = require("../models/index");
 const authenticateProtection = require("../middlewares/authentication/authenticateProtection");
@@ -46,7 +47,10 @@ router.get("/getown", authenticateProtection, async (req, res) => {
   try {
     const userId = req.user.id;
 
-    const ownPrayers = await Prayer.findAll({ where: { userId: userId } });
+    const ownPrayers = await Prayer.findAll({
+      attributes: ["id", "title", "text", "profileImage"],
+      where: { userId: userId },
+    });
 
     res.status(200).send(ownPrayers);
   } catch (error) {
@@ -59,7 +63,10 @@ router.get("/getall", authenticateProtection, async (req, res) => {
     const userId = req.user.id;
 
     const allPrayers = await Prayer.findAll({
-      where: { userId: { [Op.ne]: userId } },
+      attributes: ["id", "title", "text", "profileImage"],
+      where: sequelize.literal(
+        `"userId" != '${userId}' AND ID NOT IN (SELECT "prayerId" FROM supportedby WHERE "userId" = '${userId}')`
+      ),
     });
 
     res.status(200).send(allPrayers);
@@ -73,7 +80,16 @@ router.get("/getsupported", authenticateProtection, async (req, res) => {
     const userId = req.user.id;
 
     const suportedPrayers = await Prayer.findAll({
+      attributes: ["id", "title", "text", "profileImage"],
       where: { userId: { [Op.ne]: userId } },
+      include: [
+        {
+          model: User,
+          as: "supported",
+          where: { id: userId },
+          attributes: [],
+        },
+      ],
     });
 
     res.status(200).send(suportedPrayers);
@@ -87,8 +103,21 @@ router.get("/detailed/:prayerId", authenticateProtection, async (req, res) => {
     const prayerId = req.params.prayerId;
 
     const prayer = await Prayer.findOne({
+      attributes: [
+        "id",
+        "title",
+        "text",
+        "profileImage",
+        "supporters",
+        "categoryId",
+      ],
       where: { id: prayerId },
-      include: Comment,
+      include: [
+        {
+          model: Comment,
+          attributes: ["id", "text"],
+        },
+      ],
     });
 
     res.status(200).send(prayer);
@@ -124,7 +153,7 @@ router.patch(
   }
 );
 
-router.get("/support/:prayerId", authenticateProtection, async (req, res) => {
+router.put("/support/:prayerId", authenticateProtection, async (req, res) => {
   try {
     const prayerId = req.params.prayerId;
     const userId = req.user.id;
@@ -135,7 +164,8 @@ router.get("/support/:prayerId", authenticateProtection, async (req, res) => {
       res.status(403).send("No puedes apoyar tus propias oraciones");
     } else {
       const user = await User.findOne({ where: { id: userId } });
-      prayer.addUser(user);
+
+      prayer.addSupported(user);
 
       await prayer.set({ supporters: prayer.supporters + 1 });
       await prayer.save();
@@ -146,7 +176,7 @@ router.get("/support/:prayerId", authenticateProtection, async (req, res) => {
   }
 });
 
-router.get("/unsupport/:prayerId", authenticateProtection, async (req, res) => {
+router.put("/unsupport/:prayerId", authenticateProtection, async (req, res) => {
   try {
     const prayerId = req.params.prayerId;
     const userId = req.user.id;
@@ -159,7 +189,7 @@ router.get("/unsupport/:prayerId", authenticateProtection, async (req, res) => {
         .send("No puedes eliminar el apoyo de tus propias oraciones");
     } else {
       const user = await User.findOne({ where: { id: userId } });
-      prayer.removeUser(user);
+      prayer.removeSupported(user);
 
       await prayer.set({ supporters: prayer.supporters - 1 });
       await prayer.save();

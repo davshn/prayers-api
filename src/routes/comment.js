@@ -16,7 +16,7 @@ router.post(
   async (req, res) => {
     try {
       const userId = req.user.id;
-      
+
       const user = await User.findOne({ where: { id: userId } });
 
       await user.set({
@@ -36,24 +36,25 @@ router.post(
   }
 );
 
-router.get(
-  "/getown",
-  authenticateProtection,
-  async (req, res) => {
-    try {
-      const userId = req.user.id;
+router.get("/getown", authenticateProtection, async (req, res) => {
+  try {
+    const userId = req.user.id;
 
-      const ownComments = await Comment.findAll({
-        where: { userId: userId },
-        include: Prayer,
-      });
-
-      res.status(200).send(ownComments);
-    } catch (error) {
-      res.status(400).send("Error en la busqueda de comentarios " + error);
-    }
+    const ownComments = await Comment.findAll({
+      attributes: ["id", "text", "prayerId"],
+      where: { userId: userId },
+      include: [
+        {
+          model: Prayer,
+          attributes: ["title"],
+        },
+      ],
+    });
+    res.status(200).send(ownComments);
+  } catch (error) {
+    res.status(400).send("Error en la busqueda de comentarios " + error);
   }
-);
+});
 
 router.patch(
   "/edit/:commentId",
