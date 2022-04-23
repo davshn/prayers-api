@@ -50,6 +50,7 @@ router.get("/getown", authenticateProtection, async (req, res) => {
     const ownPrayers = await Prayer.findAll({
       attributes: ["id", "title", "text", "profileImage"],
       where: { userId: userId },
+      order: [["updatedAt", "DESC"]],
     });
 
     res.status(200).send(ownPrayers);
@@ -67,6 +68,7 @@ router.get("/getall", authenticateProtection, async (req, res) => {
       where: sequelize.literal(
         `"userId" != '${userId}' AND ID NOT IN (SELECT "prayerId" FROM supportedby WHERE "userId" = '${userId}')`
       ),
+      order: [["updatedAt", "DESC"]],
     });
 
     res.status(200).send(allPrayers);
@@ -90,6 +92,7 @@ router.get("/getsupported", authenticateProtection, async (req, res) => {
           attributes: [],
         },
       ],
+      order: [["updatedAt", "DESC"]],
     });
 
     res.status(200).send(suportedPrayers);

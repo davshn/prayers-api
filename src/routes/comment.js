@@ -49,6 +49,7 @@ router.get("/getown", authenticateProtection, async (req, res) => {
           attributes: ["title"],
         },
       ],
+      order: [["updatedAt", "DESC"]],
     });
     res.status(200).send(ownComments);
   } catch (error) {
