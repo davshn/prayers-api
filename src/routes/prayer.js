@@ -144,12 +144,6 @@ router.patch(
         where: { id: prayerId },
       });
 
-      if (req.body.name) {
-        await user.set({
-          name: req.body.name,
-        });
-      }
-
       if (userId === prayer.userId) {
         if (req.body.text) {
           await prayer.set({
@@ -207,7 +201,8 @@ router.put("/unsupport/:prayerId", authenticateProtection, async (req, res) => {
 
     if (prayer.userId === userId) {
       res
-        .status(403).send("No puedes eliminar el apoyo de tus propias oraciones");
+        .status(403)
+        .send("No puedes eliminar el apoyo de tus propias oraciones");
     } else {
       const user = await User.findOne({ where: { id: userId } });
       const unsupported = await prayer.removeSupported(user);
@@ -223,5 +218,32 @@ router.put("/unsupport/:prayerId", authenticateProtection, async (req, res) => {
     res.status(400).send("La Oracion no existe " + error);
   }
 });
+
+router.delete(
+  "/delete/:prayerId",
+  authenticateProtection,
+
+  async (req, res) => {
+    try {
+      const prayerId = req.params.prayerId;
+      const userId = req.user.id;
+      const prayer = await Prayer.findOne({
+        where: { id: prayerId },
+      });
+      
+      if (userId === prayer.userId) {
+        await prayer.destroy({
+          where: { id: prayerId },
+        });
+        await Comment.destroy({
+          where: { prayerId: null },
+        });
+        res.status(200).send("Oracion borrada");
+      } else res.status(409).send("La oracion no pertenece al usuario");
+    } catch (error) {
+      res.status(400).send("Error en el borrado de la oracion " + error);
+    }
+  }
+);
 
 module.exports = router;

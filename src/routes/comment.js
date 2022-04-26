@@ -84,4 +84,29 @@ router.patch(
   }
 );
 
+router.delete(
+  "/delete/:commentId",
+  authenticateProtection,
+  async (req, res) => {
+    try {
+      const commentId = req.params.commentId;
+      const userId = req.user.id;
+
+      const comment = await Comment.findOne({
+        where: { id: commentId },
+      });
+
+      if (userId === comment.userId) {
+        await comment.destroy({
+          where: { id: commentId },
+        });
+
+        res.status(200).send("Comentario borrado");
+      } else res.status(409).send("El comentario no pertenece al usuario");
+    } catch (error) {
+      res.status(400).send("Error en el borrado del comentario " + error);
+    }
+  }
+);
+
 module.exports = router;
