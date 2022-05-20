@@ -15,7 +15,6 @@ describe("Register should create users correctly avoiding bad info", () => {
     dateOfBirth: "10/12/2020",
     email: "test@test.com",
     password: "Test123*",
-    version: "1.0",
   };
 
   beforeAll(async () => {
@@ -23,7 +22,7 @@ describe("Register should create users correctly avoiding bad info", () => {
   });
 
   test("It should create a new user on correct info", async () => {
-    const response = await request(server).post("/user/register").send(newUser);
+    const response = await request(server).post("/user/register").set("Version", "1.0").send(newUser);
     const user = await User.findOne({ where: { email: newUser.email } });
     expect(user.name).toBe("Test");
     expect(response.statusCode).toBe(200);
@@ -31,20 +30,19 @@ describe("Register should create users correctly avoiding bad info", () => {
 
   test("It should respond 400 on repeated email", async () => {
     newUser.name = "Testing";
-    const response = await request(server).post("/user/register").send(newUser);
+    const response = await request(server).post("/user/register").set("Version", "1.0").send(newUser);
     const user = await User.findOne({ where: { email: newUser.email } });
     expect(user.name).toBe("Test");
     expect(response.statusCode).toBe(400);
   });
 
   test("It should respond with a 403 status on bad info", async () => {
-    const response = await request(server).post("/user/register").send({});
+    const response = await request(server).post("/user/register").set("Version", "1.0").send({});
     expect(response.statusCode).toBe(403);
   });
 
   test("It should respond with a 426 status on bad version", async () => {
-    newUser.version = "0.0";
-    const response = await request(server).post("/user/register").send(newUser);
+    const response = await request(server).post("/user/register").set("Version", "0.0").send(newUser);
     expect(response.statusCode).toBe(426);
   });
 });
@@ -53,12 +51,11 @@ describe("Login should give a correct token avoiding bad info", () => {
   const newUser = {
     email: "test@test.com",
     password: "Test123*",
-    version: "1.0",
     deviceInfo: "Testing",
   };
 
   test("It should login on right info", async () => {
-    const response = await request(server).post("/user/login").send(newUser);
+    const response = await request(server).post("/user/login").set("Version", "1.0").send(newUser);
     userToken = response.body.token;
     const decoded = jwt.verify(userToken, TOKEN_KEY);
     expect(response.statusCode).toBe(200);
@@ -66,19 +63,18 @@ describe("Login should give a correct token avoiding bad info", () => {
   });
 
   test("It should respond with a 403 status on bad info", async () => {
-    const response = await request(server).post("/user/login").send({});
+    const response = await request(server).post("/user/login").set("Version", "1.0").send({});
     expect(response.statusCode).toBe(403);
   });
 
   test("It should respond with a 402 status on bad user or password", async () => {
     newUser.email = "testing@testing.com";
-    const response = await request(server).post("/user/login").send(newUser);
+    const response = await request(server).post("/user/login").set("Version", "1.0").send(newUser);
     expect(response.statusCode).toBe(402);
   });
 
   test("It should respond with a 426 status on bad version", async () => {
-    newUser.version = "0.0";
-    const response = await request(server).post("/user/login").send(newUser);
+    const response = await request(server).post("/user/login").set("Version", "0.0").send(newUser);
     expect(response.statusCode).toBe(426);
   });
 });
@@ -87,7 +83,7 @@ describe("Info should give a info of current user avoiding bad info", () => {
   test("It should respond with correct user info", async () => {
     const response = await request(server)
       .get("/user/info")
-      .set("Token", userToken)
+      .set("Autentication", userToken)
       .send();
 
     const decoded = jwt.verify(userToken, TOKEN_KEY);
@@ -112,7 +108,7 @@ describe("Edit should change user info avoiding bad info", () => {
     userEdit.name = "changedName";
     const response = await request(server)
       .patch("/user/edit")
-      .set("Token", userToken)
+      .set("Autentication", userToken)
       .send(userEdit);
 
     const decoded = jwt.verify(userToken, TOKEN_KEY);
@@ -127,7 +123,7 @@ describe("Edit should change user info avoiding bad info", () => {
     userEdit.lastname = "changedLast";
     const response = await request(server)
       .patch("/user/edit")
-      .set("Token", userToken)
+      .set("Autentication", userToken)
       .send(userEdit);
 
     const decoded = jwt.verify(userToken, TOKEN_KEY);
@@ -144,16 +140,13 @@ describe("Edit should change user info avoiding bad info", () => {
 });
 
 describe("Refresh should generate a new token avoiding bad info", () => {
-  const refresh = {
-    version: "1.0",
-  };
-
   test("It should refresh on right info", async () => {
     const response = await request(server)
-      .post("/user/refresh")
-      .set("Token", userToken)
+      .get("/user/refresh")
+      .set("Autentication", userToken)
       .set("RefreshToken", "Testing")
-      .send(refresh);
+      .set("Version", "1.0")
+      .send();
     userToken = response.body.token;
     const decoded = jwt.verify(userToken, TOKEN_KEY);
     expect(response.statusCode).toBe(200);
@@ -162,19 +155,20 @@ describe("Refresh should generate a new token avoiding bad info", () => {
 
   test("It should respond with a 401 if user dit not send a token ", async () => {
     const response = await request(server)
-      .post("/user/refresh")
-      .set("Token", userToken)
-      .send(refresh);
+      .get("/user/refresh")
+      .set("Autentication", userToken)
+      .set("Version", "1.0")
+      .send();
     expect(response.statusCode).toBe(401);
   });
 
   test("It should respond with a 426 status on bad version", async () => {
-    refresh.version = "0.0";
     const response = await request(server)
-      .post("/user/refresh")
-      .set("Token", userToken)
+      .get("/user/refresh")
+      .set("Autentication", userToken)
       .set("RefreshToken", "Testing")
-      .send(refresh);
+      .set("Version", "0.0")
+      .send();
     expect(response.statusCode).toBe(426);
   });
 });

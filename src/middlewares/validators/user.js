@@ -35,11 +35,6 @@ const validateLogin = [
     .isString()
     .isStrongPassword()
     .withMessage("La contraseña es requerida"),
-  check("version")
-    .exists()
-    .isString()
-    .isLength({ min: 3 })
-    .withMessage("La version es requerida"),
   check("deviceInfo")
     .exists()
     .isString()

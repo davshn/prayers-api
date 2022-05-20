@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 const { TOKEN_KEY } = process.env;
 
 const refreshTokenProtection = (req, res, next) => {
-  const token = req.header("token");
+  const token = req.header("Autentication");
   const refreshToken = req.header("RefreshToken");
 
   if (!token || !refreshToken) {
