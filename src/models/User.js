@@ -42,10 +42,6 @@ module.exports = (sequelize) => {
         type: DataTypes.INTEGER,
         defaultValue: 0,
       },
-      prayersToCreate: {
-        type: DataTypes.INTEGER,
-        defaultValue: 3,
-      },
       deviceInfo: {
         type: DataTypes.STRING,
         allowNull: true,

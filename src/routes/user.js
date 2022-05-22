@@ -87,7 +87,6 @@ router.get("/info", authenticateProtection, async (req, res) => {
         "email",
         "createdPrayers",
         "createdComments",
-        "prayersToCreate",
         "isBaned",
       ],
       where: { id: userId },

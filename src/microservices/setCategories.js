@@ -8,6 +8,7 @@ const categories = [
   "Agradecimiento",
   "Alabanza",
 ];
+
 function setCategories() {
   categories.map(async (c) => {
     await Category.findOrCreate({ where: { name: c } });

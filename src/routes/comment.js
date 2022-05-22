@@ -6,6 +6,7 @@ const {
   validateCreation,
   validateEdit,
 } = require("../middlewares/validators/comment");
+const { getPagination, getPagingData } = require("../microservices/pagination");
 
 const router = Router();
 
@@ -39,9 +40,15 @@ router.post(
 router.get("/getown", authenticateProtection, async (req, res) => {
   try {
     const userId = req.user.id;
+    const size = req.query.size;
+    const page = req.query.page;
 
-    const ownComments = await Comment.findAll({
-      attributes: ["id", "text", "prayerId"],
+    const { limit, offset } = getPagination(page, size);
+
+    const ownComments = await Comment.findAndCountAll({
+      limit: limit,
+      offset: offset,
+      attributes: ["id", "text", "prayerId", "updatedAt"],
       where: { userId: userId },
       include: [
         {
@@ -51,7 +58,10 @@ router.get("/getown", authenticateProtection, async (req, res) => {
       ],
       order: [["updatedAt", "DESC"]],
     });
-    res.status(200).send(ownComments);
+
+    const response = getPagingData(ownComments, page, limit);
+
+    res.status(200).send(response);
   } catch (error) {
     res.status(400).send("Error en la busqueda de comentarios " + error);
   }

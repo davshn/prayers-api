@@ -8,6 +8,7 @@ const {
   validateCreation,
   validateEdit,
 } = require("../middlewares/validators/prayer");
+const { getPagination, getPagingData } = require("../microservices/pagination");
 
 const router = Router();
 
@@ -20,25 +21,20 @@ router.post(
       const userId = req.user.id;
       const user = await User.findOne({ where: { id: userId } });
 
-      if (user.prayersToCreate > 0) {
-        await user.set({
-          prayersToCreate: user.prayersToCreate - 1,
-          createdPrayers: user.createdPrayers + 1,
-        });
-        await user.save();
+      await user.set({
+        createdPrayers: user.createdPrayers + 1,
+      });
+      await user.save();
 
-        await Prayer.create({
-          title: req.body.title,
-          text: req.body.text,
-          userId: userId,
-          categoryId: req.body.categoryId,
-          profileImage: req.body.profileImage,
-        });
+      await Prayer.create({
+        title: req.body.title,
+        text: req.body.text,
+        userId: userId,
+        categoryId: req.body.categoryId,
+        profileImage: req.body.profileImage,
+      });
 
-        res.status(200).send("Oracion creada con exito");
-      } else {
-        res.status(402).send("No puedes crear mas oraciones");
-      }
+      res.status(200).send("Oracion creada con exito");
     } catch (error) {
       res.status(400).send("Error en la creacion de oracion " + error);
     }
@@ -48,14 +44,22 @@ router.post(
 router.get("/getown", authenticateProtection, async (req, res) => {
   try {
     const userId = req.user.id;
+    const size = req.query.size;
+    const page = req.query.page;
 
-    const ownPrayers = await Prayer.findAll({
-      attributes: ["id", "title", "text", "profileImage"],
+    const { limit, offset } = getPagination(page, size);
+
+    const ownPrayers = await Prayer.findAndCountAll({
+      limit: limit,
+      offset: offset,
+      attributes: ["id", "title", "text", "profileImage", "updatedAt"],
       where: { userId: userId },
       order: [["updatedAt", "DESC"]],
     });
 
-    res.status(200).send(ownPrayers);
+    const response = getPagingData(ownPrayers, page, limit);
+
+    res.status(200).send(response);
   } catch (error) {
     res.status(400).send("Error en la busqueda de oraciones " + error);
   }
@@ -64,16 +68,24 @@ router.get("/getown", authenticateProtection, async (req, res) => {
 router.get("/getall", authenticateProtection, async (req, res) => {
   try {
     const userId = req.user.id;
+    const size = req.query.size;
+    const page = req.query.page;
 
-    const allPrayers = await Prayer.findAll({
-      attributes: ["id", "title", "text", "profileImage"],
+    const { limit, offset } = getPagination(page, size);
+
+    const allPrayers = await Prayer.findAndCountAll({
+      limit: limit,
+      offset: offset,
+      attributes: ["id", "title", "text", "profileImage", "updatedAt"],
       where: sequelize.literal(
         `"userId" != '${userId}' AND ID NOT IN (SELECT "prayerId" FROM supportedby WHERE "userId" = '${userId}')`
       ),
       order: [["updatedAt", "DESC"]],
     });
 
-    res.status(200).send(allPrayers);
+    const response = getPagingData(allPrayers, page, limit);
+
+    res.status(200).send(response);
   } catch (error) {
     res.status(400).send("Error en la busqueda de oraciones " + error);
   }
@@ -82,9 +94,15 @@ router.get("/getall", authenticateProtection, async (req, res) => {
 router.get("/getsupported", authenticateProtection, async (req, res) => {
   try {
     const userId = req.user.id;
+    const size = req.query.size;
+    const page = req.query.page;
 
-    const suportedPrayers = await Prayer.findAll({
-      attributes: ["id", "title", "text", "profileImage"],
+    const { limit, offset } = getPagination(page, size);
+
+    const suportedPrayers = await Prayer.findAndCountAll({
+      limit: limit,
+      offset: offset,
+      attributes: ["id", "title", "text", "profileImage", "updatedAt"],
       where: { userId: { [Op.ne]: userId } },
       include: [
         {
@@ -97,7 +115,9 @@ router.get("/getsupported", authenticateProtection, async (req, res) => {
       order: [["updatedAt", "DESC"]],
     });
 
-    res.status(200).send(suportedPrayers);
+    const response = getPagingData(suportedPrayers, page, limit);
+
+    res.status(200).send(response);
   } catch (error) {
     res.status(400).send("Error en la busqueda de oraciones " + error);
   }
@@ -230,7 +250,7 @@ router.delete(
       const prayer = await Prayer.findOne({
         where: { id: prayerId },
       });
-      
+
       if (userId === prayer.userId) {
         await prayer.destroy({
           where: { id: prayerId },
