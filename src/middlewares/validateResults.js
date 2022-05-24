@@ -1,7 +1,5 @@
 const { validationResult } = require("express-validator");
 
-//Response validations in express validators
-
 const validateResults = (req, res, next) => {
   try {
     validationResult(req).throw();

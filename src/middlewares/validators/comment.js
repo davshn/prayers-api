@@ -6,10 +6,11 @@ const { validateResults } = require("../validateResults");
 const validateCreation = [
   check("text")
     .exists()
+    .withMessage("Se requiere un texto")
     .isString()
     .notEmpty()
     .isLength({ max: 200 })
-    .withMessage("Contenido incorrecto"),
+    .withMessage("Contenido demasiado largo"),
   check("prayerId")
     .exists()
     .withMessage("Id de oracion incorrecto")
@@ -26,10 +27,11 @@ const validateCreation = [
 const validateEdit = [
   check("text")
     .exists()
+    .withMessage("Se requiere un texto")
     .isString()
     .notEmpty()
     .isLength({ max: 200 })
-    .withMessage("Contenido incorrecto"),
+    .withMessage("Contenido demasiado largo"),
   (req, res, next) => {
     validateResults(req, res, next);
   },

@@ -32,7 +32,7 @@ router.post(
       });
       res.status(200).send("Comentario creado con exito");
     } catch (error) {
-      res.status(400).send("Error en la creacion de comentario " + error);
+      res.status(400).send("Error en la creacion del comentario " + error);
     }
   }
 );
@@ -111,7 +111,7 @@ router.delete(
           where: { id: commentId },
         });
 
-        res.status(200).send("Comentario borrado");
+        res.status(200).send("Comentario borrado con exito");
       } else res.status(409).send("El comentario no pertenece al usuario");
     } catch (error) {
       res.status(400).send("Error en el borrado del comentario " + error);

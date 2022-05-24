@@ -36,7 +36,7 @@ router.post(
 
       res.status(200).send("Oracion creada con exito");
     } catch (error) {
-      res.status(400).send("Error en la creacion de oracion " + error);
+      res.status(400).send("Error en la creacion de la oracion " + error);
     }
   }
 );
@@ -220,9 +220,7 @@ router.put("/unsupport/:prayerId", authenticateProtection, async (req, res) => {
     const prayer = await Prayer.findOne({ where: { id: prayerId } });
 
     if (prayer.userId === userId) {
-      res
-        .status(403)
-        .send("No puedes eliminar el apoyo de tus propias oraciones");
+      res.status(403).send("No puedes eliminar el apoyo de tus propias oraciones");
     } else {
       const user = await User.findOne({ where: { id: userId } });
       const unsupported = await prayer.removeSupported(user);
@@ -235,7 +233,7 @@ router.put("/unsupport/:prayerId", authenticateProtection, async (req, res) => {
       }
     }
   } catch (error) {
-    res.status(400).send("La Oracion no existe " + error);
+    res.status(400).send("La oracion no existe " + error);
   }
 });
 
@@ -258,7 +256,7 @@ router.delete(
         await Comment.destroy({
           where: { prayerId: null },
         });
-        res.status(200).send("Oracion borrada");
+        res.status(200).send("Oracion borrada con exito");
       } else res.status(409).send("La oracion no pertenece al usuario");
     } catch (error) {
       res.status(400).send("Error en el borrado de la oracion " + error);

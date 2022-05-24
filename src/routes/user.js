@@ -73,7 +73,7 @@ router.post("/login", versionProtection, validateLogin, async (req, res) => {
     }
 
   } catch (error) {
-    res.status(400).send("Error en el login" + error);
+    res.status(400).send("Error en el acceso " + error);
   }
 });
 
@@ -172,7 +172,7 @@ router.get("/refresh", versionProtection, refreshTokenProtection, async (req, re
     }
 
   } catch (error) {
-    res.status(400).send("Error en el refresh" + error);
+    res.status(400).send("Error refrescando sesion " + error);
   }
 });
 
