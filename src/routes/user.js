@@ -142,8 +142,8 @@ router.get("/refresh", versionProtection, refreshTokenProtection, async (req, re
     const deviceInfo = req.user.deviceInfo;
     console.log(refreshToken)
     console.log(await bcrypt.compare(refreshToken, deviceInfo))
-    console.log(user.deviceInfo)
     const user = await User.findOne({ where: { id: userId } });
+    console.log(user.deviceInfo)
     if (
       await bcrypt.compare(refreshToken, deviceInfo) &&
       refreshToken === user.deviceInfo
