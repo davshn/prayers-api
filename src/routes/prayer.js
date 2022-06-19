@@ -126,6 +126,7 @@ router.get("/getsupported", authenticateProtection, async (req, res) => {
 router.get("/detailed/:prayerId", authenticateProtection, async (req, res) => {
   try {
     const prayerId = req.params.prayerId;
+    const userId = req.user.id;
 
     const prayer = await Prayer.findOne({
       attributes: [
@@ -135,21 +136,35 @@ router.get("/detailed/:prayerId", authenticateProtection, async (req, res) => {
         "profileImage",
         "supporters",
         "categoryId",
-      ],
+        "userId"
+        ],
       where: { id: prayerId },
       include: [
         {
           model: Comment,
           attributes: ["id", "text"],
         },
+        {
+          model: User,
+          as: "supported",
+          attributes: ["id"],
+          through: {
+            attributes: []
+          },
+        },
       ],
-    });
+    }); 
+    
+    if (prayer.userId === userId) prayer.dataValues.property = 'self'
+    else if (prayer.supported.some((supporter) => supporter.id === userId)) prayer.dataValues.property = 'supported'
+    else prayer.dataValues.property = 'unknown'
 
     res.status(200).send(prayer);
   } catch (error) {
     res.status(400).send("La Oracion no existe " + error);
   }
 });
+
 
 router.patch(
   "/edit/:prayerId",
